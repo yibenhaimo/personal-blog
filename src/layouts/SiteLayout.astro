@@ -1,0 +1,62 @@
+---
+import '../styles/global.css';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { localeMeta, locales, type Locale } from '../lib/i18n';
+
+interface Props {
+  locale: Locale;
+  title: string;
+  description: string;
+  canonicalPath?: string;
+  noindex?: boolean;
+}
+
+const { locale, title, description, canonicalPath = Astro.url.pathname, noindex = false } = Astro.props;
+const siteOrigin = Astro.site?.toString().replace(/\/$/, '') || Astro.url.origin;
+const fullTitle = title;
+const canonical = new URL(canonicalPath, `${siteOrigin}/`).toString();
+const restPath = canonicalPath.replace(/^\/(?:zh|en|ja|fr)(?=\/|$)/, '') || '/';
+const alternateSuffix = restPath === '/' ? '/' : restPath.endsWith('/') ? restPath : `${restPath}/`;
+const alternatePaths = locales.map((target) => ({
+  locale: target,
+  href: new URL(`/${target}${alternateSuffix}`, `${siteOrigin}/`).toString(),
+}));
+---
+
+<!doctype html>
+<html lang={localeMeta[locale].htmlLang} data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="icon" href="/favicon.svg" />
+    <link rel="canonical" href={canonical} />
+    {alternatePaths.map((item) => <link rel="alternate" hreflang={localeMeta[item.locale].htmlLang} href={item.href} />)}
+    <link rel="alternate" hreflang="x-default" href={alternatePaths[0].href} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={localeMeta[locale].htmlLang} />
+    <meta name="twitter:card" content="summary" />
+    <title>{fullTitle}</title>
+    <script is:inline>
+      (() => {
+        const stored = window.localStorage.getItem('theme');
+        const system = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = stored === 'dark' || stored === 'light' ? stored : system;
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="site-shell">
+      <Header locale={locale} />
+      <main class="page-main">
+        <slot />
+      </main>
+      <Footer locale={locale} />
+    </div>
+  </body>
+</html>

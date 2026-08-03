@@ -1,0 +1,20 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import { getUi, localizedPath } from '../lib/i18n';
+
+const copy = getUi('zh');
+---
+
+<SiteLayout locale="zh" title={copy.notFound.title} description={copy.notFound.body} noindex>
+  <div class="container">
+    <section class="friend-page">
+      <p class="eyebrow">{copy.notFound.eyebrow}</p>
+      <h1 class="page-title">{copy.notFound.title}</h1>
+      <div class="empty-state">
+        <div class="empty-state-mark" aria-hidden="true">404</div>
+        <h2>{copy.notFound.body}</h2>
+        <p><a class="link-arrow" href={localizedPath('zh')}>{copy.notFound.back} <span aria-hidden="true">↗</span></a></p>
+      </div>
+    </section>
+  </div>
+</SiteLayout>

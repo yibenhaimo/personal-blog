@@ -1,0 +1,143 @@
+---
+import { BookOpenText, ChevronDown, Globe2, House, Menu, Search, UserRound, UsersRound, X } from 'lucide-astro';
+import ThemeToggle from './ThemeToggle.astro';
+import { getUi, localizedPath, localeMeta, locales, type Locale } from '../lib/i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const copy = getUi(locale);
+const currentPath = Astro.url.pathname;
+const pathAfterLocale = currentPath.replace(/^\/(?:zh|en|ja|fr)(?=\/|$)/, '') || '/';
+const languagePath = (target: Locale) => {
+  if (pathAfterLocale === '/') return localizedPath(target);
+  return `/${target}${pathAfterLocale.endsWith('/') ? pathAfterLocale : `${pathAfterLocale}/`}`;
+};
+
+const navItems = [
+  { key: 'home', href: localizedPath(locale), icon: House, label: copy.nav.home },
+  { key: 'blog', href: localizedPath(locale, 'blog'), icon: BookOpenText, label: copy.nav.blog },
+  { key: 'about', href: localizedPath(locale, 'about'), icon: UserRound, label: copy.nav.about },
+  { key: 'friend', href: localizedPath(locale, 'friend'), icon: UsersRound, label: copy.nav.friend },
+];
+
+const isCurrent = (href: string, key: string) => {
+  if (key === 'home') return currentPath === href;
+  return currentPath.startsWith(href) || (key === 'blog' && currentPath.includes(`/${locale}/tags/`));
+};
+---
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href={localizedPath(locale)} aria-label={`${copy.nav.home} - 坤坤的博客`}>
+      <span class="brand-mark" aria-hidden="true">K</span>
+      <span class="brand-name">坤坤的博客</span>
+    </a>
+
+    <nav class="main-nav" aria-label="Primary navigation">
+      {navItems.map((item) => {
+        const Icon = item.icon;
+        return (
+          <a class:list={['nav-link', { active: isCurrent(item.href, item.key) }]} href={item.href}>
+            <Icon size={15} strokeWidth={1.8} aria-hidden="true" />
+            {item.label}
+          </a>
+        );
+      })}
+      <a class:list={['nav-link', { active: currentPath.startsWith(localizedPath(locale, 'search')) }]} href={localizedPath(locale, 'search')}>
+        <Search size={15} strokeWidth={1.8} aria-hidden="true" />
+        {copy.nav.search}
+      </a>
+    </nav>
+
+    <div class="header-actions">
+      <details class="language-picker desktop-language">
+        <summary class="language-summary" aria-label={copy.common.chooseLanguage}>
+          <Globe2 size={15} strokeWidth={1.8} aria-hidden="true" />
+          {localeMeta[locale].label}
+          <ChevronDown size={14} strokeWidth={1.8} aria-hidden="true" />
+        </summary>
+        <div class="language-links">
+          {locales.map((target) => (
+            <a class:list={['language-option', { active: target === locale }]} href={languagePath(target)} lang={localeMeta[target].htmlLang}>
+              <span>{localeMeta[target].label}</span>
+              {target === locale && <span aria-hidden="true">●</span>}
+            </a>
+          ))}
+        </div>
+      </details>
+      <ThemeToggle locale={locale} />
+      <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="mobile-navigation" aria-label={copy.common.openMenu} title={copy.common.openMenu}>
+        <Menu class="menu-icon-open" size={19} strokeWidth={1.8} aria-hidden="true" />
+        <X class="menu-icon-close" size={19} strokeWidth={1.8} aria-hidden="true" />
+      </button>
+    </div>
+  </div>
+
+  <div class="mobile-panel" id="mobile-navigation" data-mobile-panel hidden>
+    <nav class="mobile-nav-list" aria-label="Mobile navigation">
+      {navItems.map((item) => {
+        const Icon = item.icon;
+        return (
+          <a class:list={['nav-link', { active: isCurrent(item.href, item.key) }]} href={item.href}>
+            <Icon size={16} strokeWidth={1.8} aria-hidden="true" />
+            {item.label}
+          </a>
+        );
+      })}
+      <a class:list={['nav-link', { active: currentPath.startsWith(localizedPath(locale, 'search')) }]} href={localizedPath(locale, 'search')}>
+        <Search size={16} strokeWidth={1.8} aria-hidden="true" />
+        {copy.nav.search}
+      </a>
+    </nav>
+
+    <details class="language-picker mobile-language-picker">
+      <summary class="language-summary" aria-label={copy.common.chooseLanguage}>
+        <span class="nav-tools"><Globe2 size={16} strokeWidth={1.8} aria-hidden="true" /> {localeMeta[locale].label}</span>
+        <ChevronDown size={15} strokeWidth={1.8} aria-hidden="true" />
+      </summary>
+      <div class="language-links">
+        {locales.map((target) => (
+          <a class:list={['language-option', { active: target === locale }]} href={languagePath(target)} lang={localeMeta[target].htmlLang}>
+            <span>{localeMeta[target].label}</span>
+            {target === locale && <span aria-hidden="true">●</span>}
+          </a>
+        ))}
+      </div>
+    </details>
+  </div>
+</header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const panel = document.querySelector<HTMLElement>('[data-mobile-panel]');
+
+  if (toggle && panel && toggle.dataset.bound !== 'true') {
+    toggle.dataset.bound = 'true';
+    const closeMenu = () => {
+      panel.classList.remove('is-open');
+      panel.hidden = true;
+      toggle.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('menu-open');
+    };
+
+    toggle.addEventListener('click', () => {
+      const open = toggle.getAttribute('aria-expanded') === 'true';
+      if (open) {
+        closeMenu();
+      } else {
+        panel.hidden = false;
+        panel.classList.add('is-open');
+        toggle.setAttribute('aria-expanded', 'true');
+        document.body.classList.add('menu-open');
+      }
+    });
+
+    panel.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 860) closeMenu();
+    });
+  }
+</script>

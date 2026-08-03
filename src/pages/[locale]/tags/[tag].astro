@@ -1,0 +1,40 @@
+---
+import { getCollection } from 'astro:content';
+import PostCard from '../../../components/PostCard.astro';
+import SiteLayout from '../../../layouts/SiteLayout.astro';
+import { getLocaleFromEntry, isPublished, postsForLocale } from '../../../lib/content';
+import { getUi, isLocale, locales } from '../../../lib/i18n';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('blog');
+  const paths = [];
+  for (const locale of locales) {
+    const tags = new Set(entries.filter((entry) => isPublished(entry) && getLocaleFromEntry(entry) === locale).flatMap((entry) => entry.data.tags));
+    for (const tag of tags) paths.push({ params: { locale, tag }, props: { tag } });
+  }
+  return paths;
+}
+
+const rawLocale = Astro.params.locale;
+if (!isLocale(rawLocale)) throw new Error(`Unsupported locale: ${rawLocale}`);
+const locale = rawLocale;
+const tag = String(Astro.props.tag || Astro.params.tag || '');
+const copy = getUi(locale);
+const entries = await getCollection('blog');
+const posts = postsForLocale(entries, locale).filter((entry) => entry.data.tags.includes(tag));
+---
+
+<SiteLayout locale={locale} title={tag} description={`${copy.tags.title}: ${tag}`}>
+  <div class="container">
+    <section class="page-intro">
+      <div>
+        <p class="eyebrow">{copy.tags.eyebrow}</p>
+        <h1 class="page-title">{tag}</h1>
+      </div>
+      <p class="page-intro-note">{posts.length} {copy.tags.posts}</p>
+    </section>
+    <section class="page-section">
+      {posts.length > 0 ? <div class="post-list">{posts.map((entry) => <PostCard entry={entry} locale={locale} />)}</div> : <div class="empty-state"><h2>{copy.tags.emptyTitle}</h2><p>{copy.tags.emptyBody}</p></div>}
+    </section>
+  </div>
+</SiteLayout>

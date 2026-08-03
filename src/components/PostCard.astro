@@ -1,0 +1,48 @@
+---
+import { ArrowUpRight, CalendarDays } from 'lucide-astro';
+import type { BlogEntry } from '../lib/content';
+import { getEntryPath } from '../lib/content';
+import type { Locale } from '../lib/i18n';
+import { formatDate, getUi } from '../lib/i18n';
+
+interface Props {
+  entry: BlogEntry;
+  locale: Locale;
+  featured?: boolean;
+}
+
+const { entry, locale, featured = false } = Astro.props;
+const copy = getUi(locale);
+const href = getEntryPath(entry);
+---
+
+{featured ? (
+  <a class="post-feature" href={href}>
+    <div class="post-feature-copy">
+      <div>
+        <div class="post-meta">
+          <span><CalendarDays size={13} strokeWidth={1.8} aria-hidden="true" /> {formatDate(entry.data.pubDate, locale)}</span>
+          {entry.data.tags[0] && <span class="meta-dot">{entry.data.tags[0]}</span>}
+        </div>
+        <h3>{entry.data.title}</h3>
+        <p>{entry.data.description}</p>
+      </div>
+      <span class="link-arrow">{copy.common.readArticle} <ArrowUpRight size={16} strokeWidth={1.8} aria-hidden="true" /></span>
+    </div>
+    <div class="post-feature-visual" aria-hidden="true">
+      <div class="visual-mark">{entry.data.locale.toUpperCase()}</div>
+    </div>
+  </a>
+) : (
+  <a class="post-row" href={href}>
+    <div>
+      <h3>{entry.data.title}</h3>
+      <p>{entry.data.description}</p>
+    </div>
+    <div class="post-meta">
+      <span><CalendarDays size={13} strokeWidth={1.8} aria-hidden="true" /> {formatDate(entry.data.pubDate, locale)}</span>
+      {entry.data.tags[0] && <span class="meta-dot">{entry.data.tags[0]}</span>}
+    </div>
+    <span class="post-row-arrow" aria-hidden="true"><ArrowUpRight size={17} strokeWidth={1.8} /></span>
+  </a>
+)}

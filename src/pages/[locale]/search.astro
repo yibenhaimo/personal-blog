@@ -1,0 +1,78 @@
+---
+import { getCollection } from 'astro:content';
+import { Search } from 'lucide-astro';
+import PostCard from '../../components/PostCard.astro';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import { postsForLocale } from '../../lib/content';
+import { getUi, isLocale, locales } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return locales.map((locale) => ({ params: { locale } }));
+}
+
+const rawLocale = Astro.params.locale;
+if (!isLocale(rawLocale)) throw new Error(`Unsupported locale: ${rawLocale}`);
+const locale = rawLocale;
+const copy = getUi(locale);
+const entries = await getCollection('blog');
+const posts = postsForLocale(entries, locale);
+---
+
+<SiteLayout locale={locale} title={copy.search.title} description={copy.search.intro}>
+  <div class="container">
+    <section class="page-intro">
+      <div>
+        <p class="eyebrow">{copy.search.eyebrow}</p>
+        <h1 class="page-title">{copy.search.title}</h1>
+      </div>
+      <p class="page-intro-note">{copy.search.intro}</p>
+    </section>
+
+    <section class="page-section">
+      {posts.length > 0 ? (
+        <>
+          <label class="search-panel" for="search-input">
+            <Search size={22} strokeWidth={1.7} aria-hidden="true" />
+            <input class="search-input" id="search-input" type="search" placeholder={copy.search.placeholder} autocomplete="off" data-search-input />
+          </label>
+          <p class="search-results-meta" data-search-count>{posts.length} {copy.search.result}</p>
+          <div class="post-list" data-search-list>
+            {posts.map((entry) => (
+              <div data-search-item data-search-text={`${entry.data.title} ${entry.data.description} ${entry.data.tags.join(' ')}`.toLowerCase()}>
+                <PostCard entry={entry} locale={locale} />
+              </div>
+            ))}
+          </div>
+          <p class="empty-state" data-search-empty hidden>{copy.search.noResults}</p>
+        </>
+      ) : (
+        <div class="empty-state">
+          <div class="empty-state-mark" aria-hidden="true">—</div>
+          <h2>{copy.search.emptyTitle}</h2>
+          <p>{copy.search.emptyBody}</p>
+        </div>
+      )}
+    </section>
+  </div>
+</SiteLayout>
+
+{posts.length > 0 && (
+  <script>
+    const input = document.querySelector<HTMLInputElement>('[data-search-input]');
+    const items = Array.from(document.querySelectorAll<HTMLElement>('[data-search-item]'));
+    const count = document.querySelector<HTMLElement>('[data-search-count]');
+    const empty = document.querySelector<HTMLElement>('[data-search-empty]');
+
+    input?.addEventListener('input', () => {
+      const term = input.value.trim().toLowerCase();
+      let visible = 0;
+      items.forEach((item) => {
+        const matches = !term || item.dataset.searchText?.includes(term);
+        item.classList.toggle('hidden-row', !matches);
+        if (matches) visible += 1;
+      });
+      if (count) count.textContent = `${visible} ${visible === 1 ? 'result' : 'results'}`;
+      if (empty) empty.hidden = visible !== 0;
+    });
+  </script>
+)}

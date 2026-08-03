@@ -1,0 +1,27 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import { getUi, isLocale, locales, localizedPath } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return locales.map((locale) => ({ params: { locale } }));
+}
+
+const rawLocale = Astro.params.locale;
+if (!isLocale(rawLocale)) throw new Error(`Unsupported locale: ${rawLocale}`);
+const locale = rawLocale;
+const copy = getUi(locale);
+---
+
+<SiteLayout locale={locale} title={copy.notFound.title} description={copy.notFound.body} noindex>
+  <div class="container">
+    <section class="friend-page">
+      <p class="eyebrow">{copy.notFound.eyebrow}</p>
+      <h1 class="page-title">{copy.notFound.title}</h1>
+      <div class="empty-state">
+        <div class="empty-state-mark" aria-hidden="true">404</div>
+        <h2>{copy.notFound.body}</h2>
+        <p><a class="link-arrow" href={localizedPath(locale)}>{copy.notFound.back} <span aria-hidden="true">↗</span></a></p>
+      </div>
+    </section>
+  </div>
+</SiteLayout>

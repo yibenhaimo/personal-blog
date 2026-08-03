@@ -1,0 +1,19 @@
+---
+import { Mail } from 'lucide-astro';
+import type { Locale } from '../lib/i18n';
+import { getUi } from '../lib/i18n';
+
+const { locale } = Astro.props as { locale: Locale };
+const copy = getUi(locale);
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span>© {year} 坤坤的博客 · {copy.footer.rights}</span>
+    <a class="footer-contact" href="mailto:2440907694@qq.com">
+      <Mail size={14} strokeWidth={1.8} aria-hidden="true" />
+      <span>{copy.footer.contact}：2440907694@qq.com</span>
+    </a>
+  </div>
+</footer>

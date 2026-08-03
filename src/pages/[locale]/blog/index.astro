@@ -1,0 +1,71 @@
+---
+import { getCollection } from 'astro:content';
+import PostCard from '../../../components/PostCard.astro';
+import SiteLayout from '../../../layouts/SiteLayout.astro';
+import { formatYear, getUi, isLocale, locales } from '../../../lib/i18n';
+import { postsForLocale } from '../../../lib/content';
+
+export function getStaticPaths() {
+  return locales.map((locale) => ({ params: { locale } }));
+}
+
+const rawLocale = Astro.params.locale;
+if (!isLocale(rawLocale)) throw new Error(`Unsupported locale: ${rawLocale}`);
+const locale = rawLocale;
+const copy = getUi(locale);
+const entries = await getCollection('blog');
+const posts = postsForLocale(entries, locale);
+const years = [...new Set(posts.map((entry) => formatYear(entry.data.pubDate, locale)))];
+---
+
+<SiteLayout locale={locale} title={copy.blog.title} description={copy.blog.intro}>
+  <div class="container">
+    <section class="page-intro">
+      <div>
+        <p class="eyebrow">{copy.blog.eyebrow}</p>
+        <h1 class="page-title">{copy.blog.title}</h1>
+      </div>
+      <p class="page-intro-note">{copy.blog.intro}</p>
+    </section>
+
+    <section class="page-section" aria-labelledby="archive-heading">
+      <div class="section-heading">
+        <h2 class="section-title" id="archive-heading">{copy.blog.archive}</h2>
+        <span class="post-meta">{posts.length} {copy.tags.posts}</span>
+      </div>
+
+      {posts.length > 0 ? (
+        <>
+          <div class="archive-toolbar">
+            <label for="year-filter">{copy.blog.allYears}</label>
+            <select class="select-control" id="year-filter" data-year-filter>
+              <option value="all">{copy.blog.allYears}</option>
+              {years.map((year) => <option value={year}>{year}</option>)}
+            </select>
+          </div>
+          <div class="post-list" data-archive-list>
+            {posts.map((entry) => <div data-year={formatYear(entry.data.pubDate, locale)}><PostCard entry={entry} locale={locale} /></div>)}
+          </div>
+        </>
+      ) : (
+        <div class="empty-state">
+          <div class="empty-state-mark" aria-hidden="true">—</div>
+          <h2>{copy.blog.emptyTitle}</h2>
+          <p>{copy.blog.emptyBody}</p>
+        </div>
+      )}
+    </section>
+  </div>
+</SiteLayout>
+
+{posts.length > 0 && (
+  <script>
+    const filter = document.querySelector<HTMLSelectElement>('[data-year-filter]');
+    const rows = Array.from(document.querySelectorAll<HTMLElement>('[data-archive-list] > [data-year]'));
+    filter?.addEventListener('change', () => {
+      rows.forEach((row) => {
+        row.classList.toggle('hidden-row', filter.value !== 'all' && row.dataset.year !== filter.value);
+      });
+    });
+  </script>
+)}

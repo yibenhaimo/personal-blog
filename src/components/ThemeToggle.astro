@@ -1,0 +1,28 @@
+---
+import { Moon, Sun } from 'lucide-astro';
+import type { Locale } from '../lib/i18n';
+import { getUi } from '../lib/i18n';
+
+const { locale } = Astro.props as { locale: Locale };
+const copy = getUi(locale);
+---
+
+<button class="icon-button" type="button" data-theme-toggle aria-label={copy.common.switchTheme} title={copy.common.switchTheme}>
+  <span class="theme-icon-light" aria-hidden="true"><Sun size={17} strokeWidth={1.8} /></span>
+  <span class="theme-icon-dark" aria-hidden="true"><Moon size={17} strokeWidth={1.8} /></span>
+</button>
+
+<script>
+  const button = document.querySelector<HTMLElement>('[data-theme-toggle]');
+
+  if (button && button.dataset.bound !== 'true') {
+    button.dataset.bound = 'true';
+    button.addEventListener('click', () => {
+      const current = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      window.localStorage.setItem('theme', next);
+      window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: next } }));
+    });
+  }
+</script>

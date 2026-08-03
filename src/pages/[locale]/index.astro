@@ -1,0 +1,77 @@
+---
+import { getCollection } from 'astro:content';
+import PostCard from '../../components/PostCard.astro';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import { postsForLocale } from '../../lib/content';
+import { getUi, isLocale, localeMeta, locales, localizedPath } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return locales.map((locale) => ({ params: { locale } }));
+}
+
+const rawLocale = Astro.params.locale;
+if (!isLocale(rawLocale)) throw new Error(`Unsupported locale: ${rawLocale}`);
+const locale = rawLocale;
+const copy = getUi(locale);
+const entries = await getCollection('blog');
+const posts = postsForLocale(entries, locale);
+const featured = posts[0];
+const latest = posts.slice(1, 5);
+---
+
+<SiteLayout locale={locale} title="坤坤的博客" description={copy.home.intro}>
+  <div class="container">
+    <section class="home-hero">
+      <div>
+        <p class="eyebrow">{copy.home.eyebrow}</p>
+        <h1 class="display-title">坤坤的博客</h1>
+        <p class="lead">{copy.home.intro}</p>
+        <div class="language-rail" aria-label={copy.home.languageNote}>
+          {locales.map((item) => <a class="language-chip" href={localizedPath(item)} lang={localeMeta[item].htmlLang}>{localeMeta[item].label}</a>)}
+        </div>
+      </div>
+      <aside class="home-hero-aside">
+        <p>{copy.home.languageNote}</p>
+        <p>2440907694@qq.com</p>
+      </aside>
+    </section>
+
+    <section class="home-section" aria-labelledby="latest-heading">
+      <div class="section-heading">
+        <h2 class="section-title" id="latest-heading">{copy.home.latest}</h2>
+        <a class="text-link" href={localizedPath(locale, 'blog')}>{copy.home.viewAll}</a>
+      </div>
+
+      {featured ? (
+        <>
+          <PostCard entry={featured} locale={locale} featured />
+          {latest.length > 0 && <div class="post-list">{latest.map((entry) => <PostCard entry={entry} locale={locale} />)}</div>}
+        </>
+      ) : (
+        <div class="empty-state">
+          <div class="empty-state-mark" aria-hidden="true">—</div>
+          <h2>{copy.home.emptyTitle}</h2>
+          <p>{copy.home.emptyBody}</p>
+        </div>
+      )}
+    </section>
+
+    <section class="home-section" aria-labelledby="selected-heading">
+      <div class="section-heading">
+        <h2 class="section-title" id="selected-heading">{copy.home.selected}</h2>
+        <a class="text-link" href={localizedPath(locale, 'about')}>{copy.nav.about}</a>
+      </div>
+      <div class="about-grid">
+        <div class="about-copy">
+          <p>{copy.about.intro}</p>
+          <p>{copy.about.body[0]}</p>
+        </div>
+        <aside class="about-aside">
+          <p class="section-kicker">{copy.friend.title}</p>
+          <p>{copy.friend.note}</p>
+          <a class="link-arrow" href={localizedPath(locale, 'friend')}>{copy.nav.friend} <span aria-hidden="true">↗</span></a>
+        </aside>
+      </div>
+    </section>
+  </div>
+</SiteLayout>

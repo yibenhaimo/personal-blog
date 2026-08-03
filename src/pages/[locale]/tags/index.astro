@@ -1,0 +1,46 @@
+---
+import { getCollection } from 'astro:content';
+import SiteLayout from '../../../layouts/SiteLayout.astro';
+import { isPublished, getLocaleFromEntry } from '../../../lib/content';
+import { getUi, isLocale, locales, localizedPath } from '../../../lib/i18n';
+
+export function getStaticPaths() {
+  return locales.map((locale) => ({ params: { locale } }));
+}
+
+const rawLocale = Astro.params.locale;
+if (!isLocale(rawLocale)) throw new Error(`Unsupported locale: ${rawLocale}`);
+const locale = rawLocale;
+const copy = getUi(locale);
+const entries = await getCollection('blog');
+const posts = entries.filter((entry) => isPublished(entry) && getLocaleFromEntry(entry) === locale);
+const counts = new Map<string, number>();
+posts.forEach((entry) => entry.data.tags.forEach((tag) => counts.set(tag, (counts.get(tag) || 0) + 1)));
+const tags = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+---
+
+<SiteLayout locale={locale} title={copy.tags.title} description={copy.tags.intro}>
+  <div class="container">
+    <section class="page-intro">
+      <div>
+        <p class="eyebrow">{copy.tags.eyebrow}</p>
+        <h1 class="page-title">{copy.tags.title}</h1>
+      </div>
+      <p class="page-intro-note">{copy.tags.intro}</p>
+    </section>
+
+    <section class="page-section">
+      {tags.length > 0 ? (
+        <div class="tag-cloud">
+          {tags.map(([tag, count]) => <a class="tag" href={localizedPath(locale, `tags/${encodeURIComponent(tag)}`)}>{tag} <span>&nbsp;{count}</span></a>)}
+        </div>
+      ) : (
+        <div class="empty-state">
+          <div class="empty-state-mark" aria-hidden="true">—</div>
+          <h2>{copy.tags.emptyTitle}</h2>
+          <p>{copy.tags.emptyBody}</p>
+        </div>
+      )}
+    </section>
+  </div>
+</SiteLayout>

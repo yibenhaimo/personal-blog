@@ -1,0 +1,36 @@
+---
+import { Mail } from 'lucide-astro';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import { getUi, isLocale, locales } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return locales.map((locale) => ({ params: { locale } }));
+}
+
+const rawLocale = Astro.params.locale;
+if (!isLocale(rawLocale)) throw new Error(`Unsupported locale: ${rawLocale}`);
+const locale = rawLocale;
+const copy = getUi(locale);
+---
+
+<SiteLayout locale={locale} title={copy.about.title} description={copy.about.intro}>
+  <div class="container">
+    <section class="page-intro">
+      <div>
+        <p class="eyebrow">{copy.about.eyebrow}</p>
+        <h1 class="page-title">{copy.about.title}</h1>
+      </div>
+      <p class="page-intro-note">{copy.about.intro}</p>
+    </section>
+
+    <section class="about-grid" aria-label={copy.about.title}>
+      <div class="about-copy">
+        {copy.about.body.map((paragraph) => <p>{paragraph}</p>)}
+      </div>
+      <aside class="about-aside">
+        <p class="section-kicker">{copy.about.contact}</p>
+        <p><a class="footer-contact" href="mailto:2440907694@qq.com"><Mail size={15} strokeWidth={1.8} aria-hidden="true" /> 2440907694@qq.com</a></p>
+      </aside>
+    </section>
+  </div>
+</SiteLayout>
