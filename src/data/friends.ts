@@ -11,7 +11,7 @@ export type FriendProfile = {
  */
 export const friends: FriendProfile[] = [
   {
-    name: 'Herenkang',
+    name: 'Youyi Blog',
     url: 'https://youyi-blog.pages.dev/',
     image: '/friends/herenkang.png',
     imageFit: 'contain',
