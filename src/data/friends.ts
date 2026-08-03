@@ -16,4 +16,10 @@ export const friends: FriendProfile[] = [
     image: '/friends/herenkang.png',
     imageFit: 'contain',
   },
+  {
+    name: 'KochiyaSanaeNya',
+    url: 'https://blog.sanaenya.com/',
+    image: '/friends/54141620.jpg',
+    imageFit: 'contain',
+  },
 ];
