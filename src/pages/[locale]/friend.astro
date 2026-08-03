@@ -1,5 +1,7 @@
 ---
+import { ArrowUpRight } from 'lucide-astro';
 import SiteLayout from '../../layouts/SiteLayout.astro';
+import { friends } from '../../data/friends';
 import { getUi, isLocale, locales } from '../../lib/i18n';
 
 export function getStaticPaths() {
@@ -17,13 +19,32 @@ const copy = getUi(locale);
     <section class="friend-page">
       <p class="eyebrow">{copy.friend.eyebrow}</p>
       <h1 class="page-title">{copy.friend.title}</h1>
-      <div class="friend-empty" aria-live="polite">
-        <div>
-          <div class="friend-empty-mark" aria-hidden="true">+</div>
-          <h2>{copy.friend.empty}</h2>
-          <p>{copy.friend.note}</p>
+      {friends.length > 0 ? (
+        <div class="friend-grid">
+          {friends.map((friend) => (
+            <a class="friend-card" href={friend.url} target="_blank" rel="noreferrer">
+              <div class={friend.imageFit === 'contain' ? 'friend-card-media friend-card-media-contain' : 'friend-card-media'}>
+                <img src={friend.image} alt={friend.name} loading="lazy" width="800" height="500" />
+              </div>
+              <div class="friend-card-body">
+                <div>
+                  <h2>{friend.name}</h2>
+                  {friend.description && <p>{friend.description}</p>}
+                </div>
+                <ArrowUpRight size={18} strokeWidth={1.8} aria-hidden="true" />
+              </div>
+            </a>
+          ))}
         </div>
-      </div>
+      ) : (
+        <div class="friend-empty" aria-live="polite">
+          <div>
+            <div class="friend-empty-mark" aria-hidden="true">+</div>
+            <h2>{copy.friend.empty}</h2>
+            <p>{copy.friend.note}</p>
+          </div>
+        </div>
+      )}
     </section>
   </div>
 </SiteLayout>

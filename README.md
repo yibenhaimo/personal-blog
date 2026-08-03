@@ -46,6 +46,23 @@ draft: false
 
 Files with `draft: true` are kept in the repository but are not published.
 
+## Adding friends
+
+Friend links are data-driven. Put a local image in `public/friends/`, then add an entry to `src/data/friends.ts`:
+
+```ts
+export const friends: FriendProfile[] = [
+  {
+    name: '朋友的博客',
+    url: 'https://friend.example.com',
+    image: '/friends/friend-blog.webp',
+    description: '朋友博客的简短介绍',
+  },
+];
+```
+
+The image may also be an absolute URL, but a local image is more reliable for deployment. The same friend list is shown on all four language versions of the `Friend` page.
+
 ## Giscus comments
 
 The site uses `yibenhaimo/personal-blog-comments` and GitHub Discussions through Giscus. Enable Discussions in that public repository, install the Giscus GitHub App, and choose a comment category.
@@ -78,4 +95,3 @@ Set `PUBLIC_SITE_URL` to the actual Pages URL or custom domain so canonical URLs
 npm run check
 npm run build
 ```
-
