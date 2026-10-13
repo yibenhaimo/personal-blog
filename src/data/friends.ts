@@ -22,4 +22,10 @@ export const friends: FriendProfile[] = [
     image: '/friends/54141620.jpg',
     imageFit: 'contain',
   },
+  {
+    name: 'muimi',
+    url: 'https://muimi.club/',
+    image: '/friends/zyc.jpg',
+    imageFit: 'contain',
+  },
 ];

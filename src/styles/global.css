@@ -546,6 +546,10 @@ img {
   font-size: 12px;
 }
 
+.post-feature .post-meta {
+  margin-bottom: 18px;
+}
+
 .post-meta .meta-dot::before {
   display: inline-block;
   width: 4px;
