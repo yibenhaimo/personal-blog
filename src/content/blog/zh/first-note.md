@@ -6,7 +6,7 @@ description: 这是一份未公开的草稿，用来验证博客的多语言内�
 pubDate: 2026-08-03
 tags:
   - draft
-draft: true
+draft: false
 ---
 
 这篇文章目前还是草稿。
