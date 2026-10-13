@@ -3,7 +3,7 @@ translationId: computer-network-for-beginners
 locale: zh
 title: 计算机网络是什么？从打开网页看懂 IP、DNS、TCP 和 HTTPS
 description: 面向零基础新生，用一次“打开网页”的过程讲清计算机网络最常见的概念。
-pubDate: 2026-10-13
+pubDate: 2026-10-06
 tags:
   - 计算机基础
   - 计算机网络

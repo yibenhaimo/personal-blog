@@ -3,7 +3,7 @@ translationId: character-encoding-for-beginners
 locale: zh
 title: 字符集是什么？新生也能看懂的 UTF-8、GBK 与乱码
 description: 从“电脑为什么会乱码”讲起，弄懂字符集、编码、Unicode、UTF-8 和 GBK。
-pubDate: 2026-10-13
+pubDate: 2026-10-07
 tags:
   - 计算机基础
   - 编码

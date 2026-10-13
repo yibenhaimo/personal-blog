@@ -3,7 +3,7 @@ translationId: terminal-powershell-cmd-for-beginners
 locale: zh
 title: 终端入门：CMD 和 PowerShell 到底有什么区别？
 description: 面向零基础新生，学会打开终端、切换文件夹、查看文件，并分清 CMD 与 PowerShell。
-pubDate: 2026-10-13
+pubDate: 2026-10-11
 tags:
   - 计算机基础
   - Windows

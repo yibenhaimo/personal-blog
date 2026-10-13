@@ -3,7 +3,7 @@ translationId: git-beginner-guide
 locale: zh
 title: Git 傻瓜式教程：新生从零入门
 description: 用一篇文章搞懂 Git 和 GitHub，并完成第一次提交与推送。
-pubDate: 2026-10-13
+pubDate: 2026-08-09
 tags:
   - Git
   - 教程
